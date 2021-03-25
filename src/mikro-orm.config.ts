@@ -6,12 +6,13 @@ import path from 'path';
 export default {
     migrations:{
         path: path.join(__dirname, "./migrations"),
-        pattern: /^[w-]+\d+\.[tj]s$/,
+        pattern: /^[\w-]+\d+\.[tj]s$/,
     },
     entities: [Post],
+    clientUrl: "http://localhost:5432",
     dbName: "lireddit",
-    user: "myuser",
-    password: "myuser1234",
+    user: "postgres",
+    password: "admin123",
     type: "postgresql",
     debug: !__prod__,
 } as Parameters<typeof MikroORM.init>[0];
