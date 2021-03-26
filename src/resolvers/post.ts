@@ -5,11 +5,13 @@ import {MyContext} from '../types';
 
 @Resolver()
 export class PostResolver {
+    // Posts query list all posts in the db
     @Query(() => [Post])
     posts(@Ctx() {em}: MyContext): Promise<Post[]> {
         return em.find(Post, {});
     }
 
+    // post query return a single post by id
     @Query(() => Post, {nullable: true})
     post(
         @Arg('id', () => Int) id: number,
@@ -17,6 +19,7 @@ export class PostResolver {
         return em.findOne(Post, { id });
     }
 
+    // createpost mutation handle posts creation
     @Mutation(() => Post)
     async createPost(
         @Arg('title', () => String) title: string,
@@ -26,6 +29,7 @@ export class PostResolver {
         return post;
     }
 
+    // updatePost mutation handle posts update
     @Mutation(() => Post, {nullable: true})
     async updatePost(
         @Arg('id', () => Int) id: number,
@@ -42,6 +46,7 @@ export class PostResolver {
         return post;
     }
 
+    // deletePost handle post deletion
     @Mutation(() => Boolean)
     async deletePost(
         @Arg('id', () => Int) id: number,

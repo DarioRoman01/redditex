@@ -4,6 +4,7 @@ import { Post } from "./entities/Posts";
 import path from 'path';
 import { User } from "./entities/User";
 
+// Mikro-orm dev config
 export default {
     migrations:{
         path: path.join(__dirname, "./migrations"),

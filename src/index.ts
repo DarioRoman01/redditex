@@ -11,14 +11,21 @@ import { UserResolver } from './resolvers/user';
 import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
+import { MyContext } from './types';
 
 const main = async () => {
+    // init db connection and search for migrations
     const orm = await MikroORM.init(microConfig);
     await orm.getMigrator().up();
 
+    // instance a new express app
     const app = express();
+
+    // instance a new redis client
     const RedisStore = connectRedis(session)
     const redisClient = redis.createClient()
+
+    // set session middleware
     app.use(
         session({
             name: 'qid',
@@ -32,21 +39,24 @@ const main = async () => {
                 sameSite: 'lax', //csrf
                 secure: __prod__ // cokiie only works in https
             },
+            saveUninitialized: false,
             secret: 'sfkgjdhfgkjdhfkj',
             resave: false,
         })
     );
 
+    // instance apollo server for graphql
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false,
         }),
-        context: ({req, res}) => ({ em: orm.em, req, res }),
+        context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
     });
 
     apolloServer.applyMiddleware({ app });
 
+    // start app on port 4000
     app.listen(4000, () => {
         console.log('server started on localhost:4000');
     });
