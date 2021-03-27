@@ -1,7 +1,8 @@
 import { User } from '../entities/User';
 import { MyContext } from 'src/types';
 import { Resolver, Arg, InputType, Field, Ctx, Mutation, ObjectType, Query } from 'type-graphql';
-import argon2 from 'argon2'
+import argon2 from 'argon2';
+//import {EntityManager} from '@mikro-orm/postgresql';
 
 
 @InputType()
@@ -83,6 +84,12 @@ export class UserResolver {
         });
 
         try {
+            // (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert({
+            //         username: options.username, 
+            //         password: hashedPassword,
+            //         createdAt: new Date(),
+            //         updatedAt: new Date()
+            // });
             await em.persistAndFlush(user); 
         } catch(err) {
             if (err.code === '23505') { // || err.detail.includes("lready exists")
@@ -127,7 +134,7 @@ export class UserResolver {
             return {
                 errors: [
                     {
-                        field: "crendentials",
+                        field: "password",
                         message: "Invalid credentials",
                     },
                 ],
