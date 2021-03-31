@@ -21,8 +21,8 @@ const Register: React.FC<registerProps> = ({}) => {
             initialValues={{username: "", email: "",password: ""}} 
             onSubmit={async (values, {setErrors}) => {
                 const response =  await register({options: values});
-                if (response.data?.register.errors) {
-                  setErrors(toErrorMap(response.data.register.errors));
+                if (response.data?.register.error) {
+                  setErrors(toErrorMap(response.data.register.error));
                 } else if (response.data?.register.user){
                   router.push("/");
                 }

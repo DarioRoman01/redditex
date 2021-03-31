@@ -1,0 +1,9 @@
+type Query {
+    
+    # Users queries
+    me: User
+
+    # Posts queries
+    posts: [Post!]
+    post(id: Int!): Post
+}

@@ -18,8 +18,8 @@ const Login: React.FC<{}> = ({}) => {
             initialValues={{usernameOrEmail: "", password: ""}} 
             onSubmit={async (values, {setErrors}) => {
                 const response =  await login(values);
-                if (response.data?.login.errors) {
-                  setErrors(toErrorMap(response.data.login.errors));
+                if (response.data?.login.error) {
+                  setErrors(toErrorMap(response.data.login.error));
                 } else if (response.data?.login.user){
                   router.push("/");
                 }

@@ -1,0 +1,18 @@
+type User @goModel(model: "lireddit/models.User") {
+    id: Int!
+    createdAt: Time!
+    updatedAt: Time!
+    username: String!
+    email: String!
+}
+
+input UserInput @goModel(model: "lireddit/models.UserInput") {
+    username: String!
+    email: String!
+    password: String!
+}
+
+type UserResponse @goModel(model: "lireddit/models.UserResponse") {
+    error: FieldError
+    user: User
+}

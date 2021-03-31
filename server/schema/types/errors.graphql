@@ -1,0 +1,4 @@
+type FieldError @goModel(model: "lireddit/models.FieldError") {
+    field: String!
+    message: String!
+}

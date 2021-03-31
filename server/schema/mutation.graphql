@@ -1,0 +1,14 @@
+type Mutation {
+
+    # Users Mutations
+    register(options: UserInput!): UserResponse!
+    login(usernameOrEmail: String!, password: String!): UserResponse!
+    logout: Boolean!
+    forgotPassword(email: String!): Boolean!
+
+    # Posts mutations
+    createPost(title: String!): Post!
+    updatePost(id: Int!, title: String!): Post
+    deletePost(id: Int!): Boolean!
+
+}
