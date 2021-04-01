@@ -5,6 +5,7 @@ type Mutation {
     login(usernameOrEmail: String!, password: String!): UserResponse!
     logout: Boolean!
     forgotPassword(email: String!): Boolean!
+    changePassword(token: String!, newPassword: String!): UserResponse!
 
     # Posts mutations
     createPost(title: String!): Post!

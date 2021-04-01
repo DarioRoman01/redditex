@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"lireddit/models"
 	"lireddit/utils"
 
@@ -109,4 +110,35 @@ func (u *UsersTable) GetUserByEmail(email string) *models.User {
 	}
 
 	return &user
+}
+
+// retrieve user by id
+func (u *UsersTable) GetUserByid(id interface{}) *models.User {
+	var user models.User
+
+	u.Table.First(&user, id)
+	if user.Id == 0 {
+		return nil
+	}
+
+	return &user
+}
+
+// handle users password change
+func (u *UsersTable) ChangeUserPassword(id string, newPassword string) *models.UserResponse {
+	user := u.GetUserByid(id)
+	if user == nil {
+		fmt.Println("no user")
+		utils.GenUserResponseError("token", "user no longer exists")
+	}
+
+	hashPwd, _ := utils.GeneratePassword(passwdCfg, newPassword)
+	result := u.Table.Model(&user).Update("password", hashPwd)
+
+	if result.RowsAffected == 0 {
+		fmt.Println("no update user")
+		return utils.GenUserResponseError("token", "user no longer exists")
+	}
+
+	return utils.GenUserResponse(*user)
 }

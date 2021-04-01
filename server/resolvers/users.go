@@ -46,14 +46,10 @@ func (r *mutationResolver) Login(ctx context.Context, usernameOrEmail string, pa
 			return response, nil
 		}
 
-		ec, err := utils.EchoContextFromContext(ctx)
-		if err != nil {
-			return utils.GenUserResponseError("server", "internal server error"), nil
+		if err := utils.GenerateSession(ctx, response.User.Id); err != nil {
+			return utils.GenUserResponseError("server", "unable to create session"), nil
 		}
 
-		session := cache.Default(ec)
-		session.Set("userId", response.User.Username)
-		session.Save()
 		return response, nil
 
 	} else {
@@ -61,14 +57,10 @@ func (r *mutationResolver) Login(ctx context.Context, usernameOrEmail string, pa
 		if response.Error != nil {
 			return response, nil
 		}
-		ec, err := utils.EchoContextFromContext(ctx)
-		if err != nil {
-			fmt.Println(err)
-			return utils.GenUserResponseError("server", "internal server error"), nil
+
+		if err := utils.GenerateSession(ctx, response.User.Id); err != nil {
+			return utils.GenUserResponseError("server", "unable to create session"), nil
 		}
-		session := cache.Default(ec)
-		session.Set("userId", response.User.Username)
-		session.Save()
 
 		return response, nil
 	}
@@ -98,7 +90,7 @@ func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 
 	session := cache.Default(ec)
 	val := session.Get("userId")
-	user := userTable.GetUserByUsername(val)
+	user := userTable.GetUserByid(val)
 	return user, nil
 }
 
@@ -110,11 +102,36 @@ func (m *mutationResolver) ForgotPassword(ctx context.Context, email string) (bo
 		return true, nil
 	}
 
-	success := utils.SendEmail(email)
+	success := utils.SendEmail(user)
 
 	if !success {
 		return false, fmt.Errorf("unable to send email")
 	}
 
 	return true, nil
+}
+
+func (m *mutationResolver) ChangePassword(ctx context.Context, token string, newPassword string) (*models.UserResponse, error) {
+	if len(newPassword) < 3 {
+		return utils.GenUserResponseError("newPassword", "password must at least 3 characters"), nil
+	}
+
+	key := fmt.Sprintf("forgot-password:%s", token)
+	redis := cache.ConnectRedis()
+	userId := redis.Get(ctx, key)
+	if userId == nil {
+		return utils.GenUserResponseError("token", "Token expired"), nil
+	}
+
+	response := userTable.ChangeUserPassword((userId.Val()), newPassword)
+	if response.Error != nil {
+		return response, nil
+	}
+
+	id, _ := userId.Int()
+	if err := utils.GenerateSession(ctx, id); err != nil {
+		return utils.GenUserResponseError("server", err.Error()), nil
+	}
+
+	return response, nil
 }

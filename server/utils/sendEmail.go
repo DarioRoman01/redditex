@@ -3,8 +3,12 @@ package utils
 import (
 	"context"
 	"fmt"
+	"lireddit/cache"
 	"lireddit/env"
+	"lireddit/models"
 	"log"
+	"math/rand"
+	"time"
 
 	"github.com/antihax/optional"
 	"github.com/ilyakaznacheev/cleanenv"
@@ -18,15 +22,22 @@ func init() {
 }
 
 // send email to user to change password
-func SendEmail(to string) bool {
+func SendEmail(user *models.User) bool {
 	client, ctx := getMailSlurpClient()
 
-	inbox, _, _ := client.InboxControllerApi.CreateInbox(ctx, nil)
+	inbox, _, _ := client.InboxControllerApi.GetInbox(ctx, env.Cfg.InboxId)
+
+	token := RandomString(20)
+
+	redis := cache.ConnectRedis()
+	redis.Set(context.Background(), fmt.Sprintf("forgot-password:%s", token), user.Id, time.Hour*24*3) // 3 days
+
+	var body string = fmt.Sprintf(`<a href="http://localhost:3000/change-password/%s">reset password</a>`, token)
 
 	sendEmailOptions := MailSlurpClient.SendEmailOptions{
 		To:      []string{inbox.EmailAddress},
 		Subject: "change password",
-		Body:    "<h1>MailSlurp supports HTML</h1>",
+		Body:    body,
 		IsHTML:  true,
 	}
 
@@ -55,4 +66,14 @@ func getMailSlurpClient() (*MailSlurpClient.APIClient, context.Context) {
 	client := MailSlurpClient.NewAPIClient(config)
 
 	return client, ctx
+}
+
+func RandomString(n int) string {
+	var letters = []rune("abcde-fghijklmnop-qrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY-Z0123456789")
+
+	s := make([]rune, n)
+	for i := range s {
+		s[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(s)
 }

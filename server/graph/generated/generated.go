@@ -49,6 +49,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		ChangePassword func(childComplexity int, token string, newPassword string) int
 		CreatePost     func(childComplexity int, title string) int
 		DeletePost     func(childComplexity int, id int) int
 		ForgotPassword func(childComplexity int, email string) int
@@ -90,6 +91,7 @@ type MutationResolver interface {
 	Login(ctx context.Context, usernameOrEmail string, password string) (*models.UserResponse, error)
 	Logout(ctx context.Context) (bool, error)
 	ForgotPassword(ctx context.Context, email string) (bool, error)
+	ChangePassword(ctx context.Context, token string, newPassword string) (*models.UserResponse, error)
 	CreatePost(ctx context.Context, title string) (*models.Post, error)
 	UpdatePost(ctx context.Context, id int, title string) (*models.Post, error)
 	DeletePost(ctx context.Context, id int) (bool, error)
@@ -128,6 +130,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.FieldError.Message(childComplexity), true
+
+	case "Mutation.changePassword":
+		if e.complexity.Mutation.ChangePassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_changePassword_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ChangePassword(childComplexity, args["token"].(string), args["newPassword"].(string)), true
 
 	case "Mutation.createPost":
 		if e.complexity.Mutation.CreatePost == nil {
@@ -394,6 +408,7 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
     login(usernameOrEmail: String!, password: String!): UserResponse!
     logout: Boolean!
     forgotPassword(email: String!): Boolean!
+    changePassword(token: String!, newPassword: String!): UserResponse!
 
     # Posts mutations
     createPost(title: String!): Post!
@@ -467,6 +482,30 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_changePassword_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["token"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["token"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["newPassword"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newPassword"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["newPassword"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createPost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -873,6 +912,48 @@ func (ec *executionContext) _Mutation_forgotPassword(ctx context.Context, field 
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_changePassword_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ChangePassword(rctx, args["token"].(string), args["newPassword"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.UserResponse)
+	fc.Result = res
+	return ec.marshalNUserResponse2ᚖliredditᚋmodelsᚐUserResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createPost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2746,6 +2827,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "forgotPassword":
 			out.Values[i] = ec._Mutation_forgotPassword(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "changePassword":
+			out.Values[i] = ec._Mutation_changePassword(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

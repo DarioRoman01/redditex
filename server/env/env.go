@@ -14,6 +14,7 @@ type Properties struct {
 	RedisPort    string `env:"REDIS_PORT" env-default:"6379"`
 	CookieSecret string `env:"COOKIE_SECRET" env-default:"abrakadabra"`
 	EmailApiKey  string `env:"EMAIL_API_KEY"`
+	InboxId      string `env:"INBOX_EMAIL_ID"`
 }
 
 var Cfg Properties

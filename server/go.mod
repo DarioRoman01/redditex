@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.13.0 // indirect
 	github.com/antihax/optional v1.0.0 // indirect
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
+	github.com/go-redis/redis/v8 v8.8.0 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
