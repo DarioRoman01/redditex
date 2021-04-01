@@ -1,12 +1,14 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"lireddit/env"
 	"log"
-	"net/smtp"
 
+	"github.com/antihax/optional"
 	"github.com/ilyakaznacheev/cleanenv"
+	MailSlurpClient "github.com/mailslurp/mailslurp-client-go"
 )
 
 func init() {
@@ -15,24 +17,42 @@ func init() {
 	}
 }
 
-func SendEmail(to []string) bool {
-	from := "bob@bob.com"
-	msg := fmt.Sprintf(
-		"To: %s \r\n"+
-			"From: hello@schadokar.dev\r\n"+
-			"Subject: Hello Gophers!\r\n"+
-			"\r\n"+
-			"This is the email is sent using golang and sendinblue.\r\n",
-		to,
-	)
+// send email to user to change password
+func SendEmail(to string) bool {
+	client, ctx := getMailSlurpClient()
 
-	smtpAddress := "localhost:1025"
-	err := smtp.SendMail(smtpAddress, nil, from, to, []byte(msg))
+	inbox, _, _ := client.InboxControllerApi.CreateInbox(ctx, nil)
 
+	sendEmailOptions := MailSlurpClient.SendEmailOptions{
+		To:      []string{inbox.EmailAddress},
+		Subject: "change password",
+		Body:    "<h1>MailSlurp supports HTML</h1>",
+		IsHTML:  true,
+	}
+
+	opts := &MailSlurpClient.SendEmailOpts{
+		SendEmailOptions: optional.NewInterface(sendEmailOptions),
+	}
+
+	res, err := client.InboxControllerApi.SendEmail(ctx, inbox.Id, opts)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		return false
 	}
 
+	fmt.Println(res)
 	return true
+}
+
+func getMailSlurpClient() (*MailSlurpClient.APIClient, context.Context) {
+	ctx := context.WithValue(
+		context.Background(),
+		MailSlurpClient.ContextAPIKey,
+		MailSlurpClient.APIKey{Key: env.Cfg.EmailApiKey},
+	)
+
+	config := MailSlurpClient.NewConfiguration()
+	client := MailSlurpClient.NewAPIClient(config)
+
+	return client, ctx
 }

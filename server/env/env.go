@@ -13,8 +13,7 @@ type Properties struct {
 	RedisHost    string `env:"REDIS_HOST" env-default:"localhost"`
 	RedisPort    string `env:"REDIS_PORT" env-default:"6379"`
 	CookieSecret string `env:"COOKIE_SECRET" env-default:"abrakadabra"`
-	SmtpHost     string `env:"SMTP_HOST" env-default:"localhost"`
-	SmtpPort     string `env:"SMTP_PORT" env-defualt:"1025"`
+	EmailApiKey  string `env:"EMAIL_API_KEY"`
 }
 
 var Cfg Properties

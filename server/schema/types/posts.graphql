@@ -1,5 +1,5 @@
 type Post @goModel(model: "lireddit/models.Post") {
-    Id: Int!
+    id: Int!
     createdAt: Time!
     updatedAt: Time!
     title: String!

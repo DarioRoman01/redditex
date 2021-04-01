@@ -16,6 +16,7 @@ func init() {
 	}
 }
 
+// Handle post creation
 func (m *mutationResolver) CreatePost(ctx context.Context, title string) (*models.Post, error) {
 	post := postTable.Postcreation(models.Post{Title: title})
 	if post == nil {
@@ -25,6 +26,7 @@ func (m *mutationResolver) CreatePost(ctx context.Context, title string) (*model
 	return post, nil
 }
 
+// Handle post delete request
 func (m *mutationResolver) DeletePost(ctx context.Context, id int) (bool, error) {
 	isDeleted := postTable.PostDelete(id)
 
@@ -35,6 +37,7 @@ func (m *mutationResolver) DeletePost(ctx context.Context, id int) (bool, error)
 	return true, nil
 }
 
+// handle post update by id
 func (m *mutationResolver) UpdatePost(ctx context.Context, id int, title string) (*models.Post, error) {
 	post := postTable.PostUpdate(id, title)
 
@@ -46,6 +49,7 @@ func (m *mutationResolver) UpdatePost(ctx context.Context, id int, title string)
 
 }
 
+// return post by id
 func (q *queryResolver) Post(ctx context.Context, id int) (*models.Post, error) {
 	post := postTable.GetPostById(id)
 
@@ -56,6 +60,7 @@ func (q *queryResolver) Post(ctx context.Context, id int) (*models.Post, error) 
 	return post, nil
 }
 
+// get all posts
 func (q *queryResolver) Posts(ctx context.Context) ([]models.Post, error) {
 	posts := postTable.GetAllPost()
 	return posts, nil

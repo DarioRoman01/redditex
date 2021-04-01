@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Get echo from the graphql request context
 func EchoContextFromContext(ctx context.Context) (echo.Context, error) {
 	echoContext := ctx.Value("EchoContextKey")
 	if echoContext == nil {

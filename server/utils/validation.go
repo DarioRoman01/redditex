@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// validate all the fields in the users registration
 func ValidateRegister(options models.UserInput) *models.UserResponse {
 	if strings.Contains(options.Username, "@") {
 		return &models.UserResponse{
@@ -45,6 +46,7 @@ func ValidateRegister(options models.UserInput) *models.UserResponse {
 	return nil
 }
 
+// Generate user response with error if there is an error
 func GenUserResponseError(field, message string) *models.UserResponse {
 	return &models.UserResponse{
 		Error: &models.FieldError{
@@ -55,6 +57,8 @@ func GenUserResponseError(field, message string) *models.UserResponse {
 	}
 }
 
+// Generate a user reponse with the user
+// all good in the request
 func GenUserResponse(user models.User) *models.UserResponse {
 	return &models.UserResponse{
 		Error: nil,

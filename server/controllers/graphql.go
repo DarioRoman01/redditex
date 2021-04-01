@@ -15,6 +15,7 @@ type CustomContext struct {
 	ctx context.Context
 }
 
+// insert echo request context in the context
 func Process(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := context.WithValue(c.Request().Context(), "EchoContextKey", c)

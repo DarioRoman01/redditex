@@ -20,6 +20,7 @@ func init() {
 	}
 }
 
+// handle users signup and validate all the fields required for signup
 func (r *mutationResolver) Register(ctx context.Context, options models.UserInput) (*models.UserResponse, error) {
 	isInvalid := utils.ValidateRegister(options)
 	if isInvalid != nil {
@@ -36,13 +37,20 @@ func (r *mutationResolver) Register(ctx context.Context, options models.UserInpu
 	return userResponse, nil
 }
 
+// Handle users login by email or username
 func (r *mutationResolver) Login(ctx context.Context, usernameOrEmail string, password string) (*models.UserResponse, error) {
 	if strings.Contains(usernameOrEmail, "@") {
+
 		response := userTable.LoginByEmail(usernameOrEmail, password)
+		if response.Error != nil {
+			return response, nil
+		}
+
 		ec, err := utils.EchoContextFromContext(ctx)
 		if err != nil {
 			return utils.GenUserResponseError("server", "internal server error"), nil
 		}
+
 		session := cache.Default(ec)
 		session.Set("userId", response.User.Username)
 		session.Save()
@@ -50,6 +58,9 @@ func (r *mutationResolver) Login(ctx context.Context, usernameOrEmail string, pa
 
 	} else {
 		response := userTable.LoginByUsername(usernameOrEmail, password)
+		if response.Error != nil {
+			return response, nil
+		}
 		ec, err := utils.EchoContextFromContext(ctx)
 		if err != nil {
 			fmt.Println(err)
@@ -63,6 +74,7 @@ func (r *mutationResolver) Login(ctx context.Context, usernameOrEmail string, pa
 	}
 }
 
+// Logout remove session cookie from the client
 func (m *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	ec, err := utils.EchoContextFromContext(ctx)
 	if err != nil {
@@ -77,6 +89,7 @@ func (m *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
+// return user data based on the session
 func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 	ec, err := utils.EchoContextFromContext(ctx)
 	if err != nil {
@@ -89,14 +102,15 @@ func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 	return user, nil
 }
 
+// handle forgot password validate email exist in the db and send email for change password
 func (m *mutationResolver) ForgotPassword(ctx context.Context, email string) (bool, error) {
 	user := userTable.GetUserByEmail(email)
 
 	if user == nil {
-		return false, fmt.Errorf("invalid email")
+		return true, nil
 	}
 
-	success := utils.SendEmail([]string{email})
+	success := utils.SendEmail(email)
 
 	if !success {
 		return false, fmt.Errorf("unable to send email")

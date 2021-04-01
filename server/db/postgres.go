@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// connect the server to postgres
 func Connect() (*gorm.DB, error) {
 	if err := cleanenv.ReadEnv(&env.Cfg); err != nil {
 		return nil, fmt.Errorf("unable to connect to postgres: %s", err)

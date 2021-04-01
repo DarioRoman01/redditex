@@ -215,7 +215,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Post.CreatedAt(childComplexity), true
 
-	case "Post.Id":
+	case "Post.id":
 		if e.complexity.Post.ID == nil {
 			break
 		}
@@ -438,7 +438,7 @@ scalar Upload`, BuiltIn: false},
     message: String!
 }`, BuiltIn: false},
 	{Name: "schema/types/posts.graphql", Input: `type Post @goModel(model: "lireddit/models.Post") {
-    Id: Int!
+    id: Int!
     createdAt: Time!
     updatedAt: Time!
     title: String!
@@ -998,7 +998,7 @@ func (ec *executionContext) _Mutation_deletePost(ctx context.Context, field grap
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Post_Id(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_id(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2783,8 +2783,8 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Post")
-		case "Id":
-			out.Values[i] = ec._Post_Id(ctx, field, obj)
+		case "id":
+			out.Values[i] = ec._Post_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

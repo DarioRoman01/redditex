@@ -73,7 +73,7 @@ export type MutationDeletePostArgs = {
 
 export type Post = {
   __typename?: 'Post';
-  Id: Scalars['Int'];
+  id: Scalars['Int'];
   createdAt: Scalars['Time'];
   updatedAt: Scalars['Time'];
   title: Scalars['String'];
@@ -184,7 +184,7 @@ export type PostsQuery = (
   { __typename?: 'Query' }
   & { posts?: Maybe<Array<(
     { __typename?: 'Post' }
-    & Pick<Post, 'Id' | 'createdAt' | 'updatedAt' | 'title'>
+    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title'>
   )>> }
 );
 
@@ -251,7 +251,7 @@ export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'q
 export const PostsDocument = gql`
     query Posts {
   posts {
-    Id
+    id
     createdAt
     updatedAt
     title
