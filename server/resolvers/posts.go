@@ -24,11 +24,10 @@ func (m *mutationResolver) CreatePost(ctx context.Context, options models.PostIn
 		return nil, err
 	}
 
-	userIdInt, _ := userId.(int)
 	post := postTable.Postcreation(models.Post{
 		Title:     options.Title,
 		Text:      options.Text,
-		CreatorId: userIdInt,
+		CreatorId: userId,
 	})
 
 	if post == nil {

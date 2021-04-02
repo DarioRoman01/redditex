@@ -18,16 +18,17 @@ func GenerateSession(ctx context.Context, id int) error {
 	return nil
 }
 
-func GetUserSession(ctx context.Context) (interface{}, error) {
+func GetUserSession(ctx context.Context) (int, error) {
 	ec, err := EchoContextFromContext(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get echo context")
+		return 0, fmt.Errorf("cannot get echo context")
 	}
 
 	session := cache.Default(ec)
 	val := session.Get("userId")
 	if val == nil {
-		return nil, fmt.Errorf("you are not logged in")
+		return 0, fmt.Errorf("not authenticated")
 	}
-	return val, nil
+	userId := val.(int)
+	return userId, nil
 }

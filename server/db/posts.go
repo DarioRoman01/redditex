@@ -29,7 +29,7 @@ func (p *PostTable) PostDelete(id int) bool {
 	return true
 }
 
-func (p *PostTable) PostUpdate(id int, userId interface{}, options models.PostInput) (*models.Post, error) {
+func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*models.Post, error) {
 	var post models.Post
 
 	p.Table.First(&post, id)
@@ -37,8 +37,7 @@ func (p *PostTable) PostUpdate(id int, userId interface{}, options models.PostIn
 		return nil, fmt.Errorf("post not found")
 	}
 
-	userIdInt := userId.(int)
-	if post.CreatorId != userIdInt {
+	if post.CreatorId != userId {
 		return nil, fmt.Errorf("you do not have permissions tp perform this action")
 	}
 

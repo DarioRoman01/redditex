@@ -7,6 +7,7 @@ import (
 	"lireddit/models"
 	"log"
 
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -31,6 +32,10 @@ func main() {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowCredentials: true,
+	}))
+	e.Use(session.MiddlewareWithConfig(session.Config{
+		Skipper: middleware.DefaultSkipper,
+		Store:   store,
 	}))
 	e.Use(controllers.Process)
 	e.Use(cache.Sessions("qid", store))
