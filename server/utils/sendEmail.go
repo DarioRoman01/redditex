@@ -47,11 +47,10 @@ func SendEmail(user *models.User) bool {
 
 	res, err := client.InboxControllerApi.SendEmail(ctx, inbox.Id, opts)
 	if err != nil {
-		fmt.Println(err)
 		return false
 	}
 
-	fmt.Println(res)
+	fmt.Println(res.StatusCode)
 	return true
 }
 

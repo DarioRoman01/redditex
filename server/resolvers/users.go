@@ -111,6 +111,7 @@ func (m *mutationResolver) ForgotPassword(ctx context.Context, email string) (bo
 	return true, nil
 }
 
+// Handle change password request validate token and password. also if the request go well create a session for the user
 func (m *mutationResolver) ChangePassword(ctx context.Context, token string, newPassword string) (*models.UserResponse, error) {
 	if len(newPassword) < 3 {
 		return utils.GenUserResponseError("newPassword", "password must at least 3 characters"), nil
@@ -119,7 +120,8 @@ func (m *mutationResolver) ChangePassword(ctx context.Context, token string, new
 	key := fmt.Sprintf("forgot-password:%s", token)
 	redis := cache.ConnectRedis()
 	userId := redis.Get(ctx, key)
-	if userId == nil {
+
+	if userId.Val() == "" {
 		return utils.GenUserResponseError("token", "Token expired"), nil
 	}
 
@@ -133,5 +135,6 @@ func (m *mutationResolver) ChangePassword(ctx context.Context, token string, new
 		return utils.GenUserResponseError("server", err.Error()), nil
 	}
 
+	redis.Del(context.Background(), key)
 	return response, nil
 }
