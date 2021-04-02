@@ -232,7 +232,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Post.CreatedAt(childComplexity), true
 
-	case "Post.creator_id":
+	case "Post.creatorId":
 		if e.complexity.Post.CreatorId == nil {
 			break
 		}
@@ -424,7 +424,8 @@ directive @goModel(model: String, models: [String!]) on OBJECT
     | UNION
 
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
-    | FIELD_DEFINITION`, BuiltIn: false},
+    | FIELD_DEFINITION
+`, BuiltIn: false},
 	{Name: "schema/mutation.graphql", Input: `type Mutation {
 
     # Users Mutations
@@ -483,7 +484,7 @@ scalar Upload`, BuiltIn: false},
     title: String!
     text: String!
     points: Int!
-    creator_id: Int!
+    creatorId: Int!
 }
 
 input PostInput @goModel(model: "lireddit/models.PostInput") {
@@ -1321,7 +1322,7 @@ func (ec *executionContext) _Post_points(ctx context.Context, field graphql.Coll
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Post_creator_id(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_creatorId(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3064,8 +3065,8 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "creator_id":
-			out.Values[i] = ec._Post_creator_id(ctx, field, obj)
+		case "creatorId":
+			out.Values[i] = ec._Post_creatorId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

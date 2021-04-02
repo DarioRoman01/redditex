@@ -20,13 +20,19 @@ func (p *PostTable) Postcreation(post models.Post) *models.Post {
 	return &post
 }
 
-func (p *PostTable) PostDelete(id int) bool {
-	result := p.Table.Delete(&models.Post{}, id)
-	if result.RowsAffected == 0 || result.Error != nil {
-		return false
+func (p *PostTable) PostDelete(id int, userId int) error {
+	var post models.Post
+	p.Table.First(&post, id)
+
+	if post.CreatorId != userId {
+		return fmt.Errorf("you dont have permissions to perform this action")
 	}
 
-	return true
+	if err := p.Table.Delete(&post); err != nil {
+		return fmt.Errorf("unable to delete the post")
+	}
+
+	return nil
 }
 
 func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*models.Post, error) {

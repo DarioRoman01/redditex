@@ -39,10 +39,13 @@ func (m *mutationResolver) CreatePost(ctx context.Context, options models.PostIn
 
 // Handle post delete request
 func (m *mutationResolver) DeletePost(ctx context.Context, id int) (bool, error) {
-	isDeleted := postTable.PostDelete(id)
+	userId, err := utils.GetUserSession(ctx)
+	if err != nil {
+		return false, err
+	}
 
-	if !isDeleted {
-		return false, fmt.Errorf("post not found")
+	if err := postTable.PostDelete(id, userId); err != nil {
+		return false, err
 	}
 
 	return true, nil

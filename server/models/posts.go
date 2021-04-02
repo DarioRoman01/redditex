@@ -10,7 +10,7 @@ type Post struct {
 	Title     string    `json:"title" gorm:"not null"`
 	Text      string    `json:"text" gorm:"not null"`
 	Points    int       `json:"points" gorm:"default:0"`
-	CreatorId int       `json:"creator_id"`
+	CreatorId int       `json:"creatorId"`
 }
 
 type PostInput struct {

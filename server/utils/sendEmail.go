@@ -25,7 +25,7 @@ func init() {
 func SendEmail(user *models.User) bool {
 	client, ctx := getMailSlurpClient()
 
-	inbox, _, _ := client.InboxControllerApi.GetInbox(ctx, env.Cfg.InboxId)
+	inbox, _, _ := client.InboxControllerApi.CreateInbox(ctx, nil)
 
 	token := RandomString(20)
 
@@ -68,7 +68,7 @@ func getMailSlurpClient() (*MailSlurpClient.APIClient, context.Context) {
 }
 
 func RandomString(n int) string {
-	var letters = []rune("abcde-fghijklmnop-qrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY-Z0123456789")
+	var letters = []rune("abcde-fghijklmnop-qrstuvwxyzABCDEFGHIJ-KLMNOP-QRSTUVWXY-Z0123456789")
 
 	s := make([]rune, n)
 	for i := range s {

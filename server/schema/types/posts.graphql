@@ -5,7 +5,7 @@ type Post @goModel(model: "lireddit/models.Post") {
     title: String!
     text: String!
     points: Int!
-    creator_id: Int!
+    creatorId: Int!
 }
 
 input PostInput @goModel(model: "lireddit/models.PostInput") {
