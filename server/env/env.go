@@ -9,7 +9,7 @@ type Properties struct {
 	DBPort       string `env:"DB_PORT" env-default:"5432"`
 	DBUser       string `env:"DB_USER" env-default:"postgres"`
 	DBPassword   string `env:"DB_PASSWORD" env-default:"admin123"`
-	DBName       string `env:"DB_NAME" env-default:"redditex"`
+	DBName       string `env:"DB_NAME" env-default:"lireddit"`
 	RedisHost    string `env:"REDIS_HOST" env-default:"localhost"`
 	RedisPort    string `env:"REDIS_PORT" env-default:"6379"`
 	CookieSecret string `env:"COOKIE_SECRET" env-default:"abrakadabra"`

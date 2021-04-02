@@ -3,4 +3,12 @@ type Post @goModel(model: "lireddit/models.Post") {
     createdAt: Time!
     updatedAt: Time!
     title: String!
+    text: String!
+    points: Int!
+    creator_id: Int!
+}
+
+input PostInput @goModel(model: "lireddit/models.PostInput") {
+    title: String!
+    text: String!
 }

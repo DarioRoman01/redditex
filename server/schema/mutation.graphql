@@ -8,8 +8,8 @@ type Mutation {
     changePassword(token: String!, newPassword: String!): UserResponse!
 
     # Posts mutations
-    createPost(title: String!): Post!
-    updatePost(id: Int!, title: String!): Post
+    createPost(options: PostInput!): Post!
+    updatePost(id: Int!, options: PostInput!): Post
     deletePost(id: Int!): Boolean!
 
 }

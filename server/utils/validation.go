@@ -46,7 +46,7 @@ func ValidateRegister(options models.UserInput) *models.UserResponse {
 	return nil
 }
 
-// Generate user response with error if there is an error
+// Generate user response with error if there is any error
 func GenUserResponseError(field, message string) *models.UserResponse {
 	return &models.UserResponse{
 		Error: &models.FieldError{
@@ -58,7 +58,7 @@ func GenUserResponseError(field, message string) *models.UserResponse {
 }
 
 // Generate a user reponse with the user
-// all good in the request
+// there was no errors in the request
 func GenUserResponse(user models.User) *models.UserResponse {
 	return &models.UserResponse{
 		Error: nil,

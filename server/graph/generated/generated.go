@@ -61,7 +61,10 @@ type ComplexityRoot struct {
 
 	Post struct {
 		CreatedAt func(childComplexity int) int
+		CreatorId func(childComplexity int) int
 		ID        func(childComplexity int) int
+		Points    func(childComplexity int) int
+		Text      func(childComplexity int) int
 		Title     func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 	}
@@ -229,12 +232,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Post.CreatedAt(childComplexity), true
 
+	case "Post.creator_id":
+		if e.complexity.Post.CreatorId == nil {
+			break
+		}
+
+		return e.complexity.Post.CreatorId(childComplexity), true
+
 	case "Post.id":
 		if e.complexity.Post.ID == nil {
 			break
 		}
 
 		return e.complexity.Post.ID(childComplexity), true
+
+	case "Post.points":
+		if e.complexity.Post.Points == nil {
+			break
+		}
+
+		return e.complexity.Post.Points(childComplexity), true
+
+	case "Post.text":
+		if e.complexity.Post.Text == nil {
+			break
+		}
+
+		return e.complexity.Post.Text(childComplexity), true
 
 	case "Post.title":
 		if e.complexity.Post.Title == nil {
@@ -457,6 +481,9 @@ scalar Upload`, BuiltIn: false},
     createdAt: Time!
     updatedAt: Time!
     title: String!
+    text: String!
+    points: Int!
+    creator_id: Int!
 }`, BuiltIn: false},
 	{Name: "schema/types/users.graphql", Input: `type User @goModel(model: "lireddit/models.User") {
     id: Int!
@@ -1217,6 +1244,111 @@ func (ec *executionContext) _Post_title(ctx context.Context, field graphql.Colle
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_text(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Text, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_points(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Points, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_creator_id(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatorId, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2886,6 +3018,21 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "title":
 			out.Values[i] = ec._Post_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "text":
+			out.Values[i] = ec._Post_text(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "points":
+			out.Values[i] = ec._Post_points(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "creator_id":
+			out.Values[i] = ec._Post_creator_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
