@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"lireddit/db"
 	"lireddit/models"
+	"lireddit/utils"
 )
 
 var postTable db.PostTable
@@ -17,8 +18,19 @@ func init() {
 }
 
 // Handle post creation
-func (m *mutationResolver) CreatePost(ctx context.Context, title string) (*models.Post, error) {
-	post := postTable.Postcreation(models.Post{Title: title})
+func (m *mutationResolver) CreatePost(ctx context.Context, options models.PostInput) (*models.Post, error) {
+	userId, err := utils.GetUserSession(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userIdInt, _ := userId.(int)
+	post := postTable.Postcreation(models.Post{
+		Title:     options.Title,
+		Text:      options.Text,
+		CreatorId: userIdInt,
+	})
+
 	if post == nil {
 		return nil, fmt.Errorf("unable to create post")
 	}
@@ -38,11 +50,15 @@ func (m *mutationResolver) DeletePost(ctx context.Context, id int) (bool, error)
 }
 
 // handle post update by id
-func (m *mutationResolver) UpdatePost(ctx context.Context, id int, title string) (*models.Post, error) {
-	post := postTable.PostUpdate(id, title)
+func (m *mutationResolver) UpdatePost(ctx context.Context, id int, options models.PostInput) (*models.Post, error) {
+	userId, err := utils.GetUserSession(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	if post == nil {
-		return nil, fmt.Errorf("post not found")
+	post, err := postTable.PostUpdate(id, userId, options)
+	if err != nil {
+		return nil, err
 	}
 
 	return post, nil

@@ -83,13 +83,12 @@ func (m *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // return user data based on the session
 func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
-	ec, err := utils.EchoContextFromContext(ctx)
+	val, err := utils.GetUserSession(ctx)
+
 	if err != nil {
 		return nil, nil
 	}
 
-	session := cache.Default(ec)
-	val := session.Get("userId")
 	user := userTable.GetUserByid(val)
 	return user, nil
 }

@@ -50,13 +50,13 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		ChangePassword func(childComplexity int, token string, newPassword string) int
-		CreatePost     func(childComplexity int, title string) int
+		CreatePost     func(childComplexity int, options models.PostInput) int
 		DeletePost     func(childComplexity int, id int) int
 		ForgotPassword func(childComplexity int, email string) int
 		Login          func(childComplexity int, usernameOrEmail string, password string) int
 		Logout         func(childComplexity int) int
 		Register       func(childComplexity int, options models.UserInput) int
-		UpdatePost     func(childComplexity int, id int, title string) int
+		UpdatePost     func(childComplexity int, id int, options models.PostInput) int
 	}
 
 	Post struct {
@@ -95,8 +95,8 @@ type MutationResolver interface {
 	Logout(ctx context.Context) (bool, error)
 	ForgotPassword(ctx context.Context, email string) (bool, error)
 	ChangePassword(ctx context.Context, token string, newPassword string) (*models.UserResponse, error)
-	CreatePost(ctx context.Context, title string) (*models.Post, error)
-	UpdatePost(ctx context.Context, id int, title string) (*models.Post, error)
+	CreatePost(ctx context.Context, options models.PostInput) (*models.Post, error)
+	UpdatePost(ctx context.Context, id int, options models.PostInput) (*models.Post, error)
 	DeletePost(ctx context.Context, id int) (bool, error)
 }
 type QueryResolver interface {
@@ -156,7 +156,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreatePost(childComplexity, args["title"].(string)), true
+		return e.complexity.Mutation.CreatePost(childComplexity, args["options"].(models.PostInput)), true
 
 	case "Mutation.deletePost":
 		if e.complexity.Mutation.DeletePost == nil {
@@ -223,7 +223,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdatePost(childComplexity, args["id"].(int), args["title"].(string)), true
+		return e.complexity.Mutation.UpdatePost(childComplexity, args["id"].(int), args["options"].(models.PostInput)), true
 
 	case "Post.createdAt":
 		if e.complexity.Post.CreatedAt == nil {
@@ -435,8 +435,8 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
     changePassword(token: String!, newPassword: String!): UserResponse!
 
     # Posts mutations
-    createPost(title: String!): Post!
-    updatePost(id: Int!, title: String!): Post
+    createPost(options: PostInput!): Post!
+    updatePost(id: Int!, options: PostInput!): Post
     deletePost(id: Int!): Boolean!
 
 }`, BuiltIn: false},
@@ -484,6 +484,11 @@ scalar Upload`, BuiltIn: false},
     text: String!
     points: Int!
     creator_id: Int!
+}
+
+input PostInput @goModel(model: "lireddit/models.PostInput") {
+    title: String!
+    text: String!
 }`, BuiltIn: false},
 	{Name: "schema/types/users.graphql", Input: `type User @goModel(model: "lireddit/models.User") {
     id: Int!
@@ -537,15 +542,15 @@ func (ec *executionContext) field_Mutation_changePassword_args(ctx context.Conte
 func (ec *executionContext) field_Mutation_createPost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["title"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 models.PostInput
+	if tmp, ok := rawArgs["options"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+		arg0, err = ec.unmarshalNPostInput2liredditᚋmodelsᚐPostInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["title"] = arg0
+	args["options"] = arg0
 	return args, nil
 }
 
@@ -630,15 +635,15 @@ func (ec *executionContext) field_Mutation_updatePost_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["title"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg1 models.PostInput
+	if tmp, ok := rawArgs["options"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+		arg1, err = ec.unmarshalNPostInput2liredditᚋmodelsᚐPostInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["title"] = arg1
+	args["options"] = arg1
 	return args, nil
 }
 
@@ -1008,7 +1013,7 @@ func (ec *executionContext) _Mutation_createPost(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreatePost(rctx, args["title"].(string))
+		return ec.resolvers.Mutation().CreatePost(rctx, args["options"].(models.PostInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1050,7 +1055,7 @@ func (ec *executionContext) _Mutation_updatePost(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdatePost(rctx, args["id"].(int), args["title"].(string))
+		return ec.resolvers.Mutation().UpdatePost(rctx, args["id"].(int), args["options"].(models.PostInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2851,6 +2856,34 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputPostInput(ctx context.Context, obj interface{}) (models.PostInput, error) {
+	var it models.PostInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "title":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "text":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			it.Text, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (models.UserInput, error) {
 	var it models.UserInput
 	var asMap = obj.(map[string]interface{})
@@ -3470,6 +3503,11 @@ func (ec *executionContext) marshalNPost2ᚖliredditᚋmodelsᚐPost(ctx context
 		return graphql.Null
 	}
 	return ec._Post(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPostInput2liredditᚋmodelsᚐPostInput(ctx context.Context, v interface{}) (models.PostInput, error) {
+	res, err := ec.unmarshalInputPostInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

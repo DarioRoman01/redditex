@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"lireddit/models"
 
 	"gorm.io/gorm"
@@ -28,16 +29,25 @@ func (p *PostTable) PostDelete(id int) bool {
 	return true
 }
 
-func (p *PostTable) PostUpdate(id int, title string) *models.Post {
+func (p *PostTable) PostUpdate(id int, userId interface{}, options models.PostInput) (*models.Post, error) {
 	var post models.Post
 
 	p.Table.First(&post, id)
 	if post.ID == 0 {
-		return nil
+		return nil, fmt.Errorf("post not found")
 	}
 
-	p.Table.Model(&post).Update("title", title)
-	return &post
+	userIdInt := userId.(int)
+	if post.CreatorId != userIdInt {
+		return nil, fmt.Errorf("you do not have permissions tp perform this action")
+	}
+
+	p.Table.Model(&post).Updates(&models.Post{
+		Title: options.Title,
+		Text:  options.Text,
+	})
+
+	return &post, nil
 }
 
 func (p *PostTable) GetPostById(id int) *models.Post {
