@@ -4,6 +4,6 @@ type Query {
     me: User
 
     # Posts queries
-    posts: [Post!]
+    posts(limit: Int!, cursor: String): [Post!]
     post(id: Int!): Post
 }

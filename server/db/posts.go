@@ -64,8 +64,18 @@ func (p *PostTable) GetPostById(id int) *models.Post {
 	return &post
 }
 
-func (p *PostTable) GetAllPost() []models.Post {
+func (p *PostTable) GetAllPost(limit int, cursor *string) []models.Post {
 	var posts []models.Post
-	p.Table.Find(&posts)
+
+	if limit > 50 {
+		limit = 50
+	}
+
+	if cursor != nil {
+		p.Table.Where("created_at < ?", *cursor).Order("created_at DESC").Limit(limit).Find(&posts)
+	} else {
+		p.Table.Limit(limit).Order("created_at DESC").Find(&posts)
+	}
+
 	return posts
 }

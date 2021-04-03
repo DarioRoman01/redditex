@@ -79,7 +79,7 @@ func (q *queryResolver) Post(ctx context.Context, id int) (*models.Post, error) 
 }
 
 // get all posts
-func (q *queryResolver) Posts(ctx context.Context) ([]models.Post, error) {
-	posts := postTable.GetAllPost()
+func (q *queryResolver) Posts(ctx context.Context, limit int, cursor *string) ([]models.Post, error) {
+	posts := postTable.GetAllPost(limit, cursor)
 	return posts, nil
 }
