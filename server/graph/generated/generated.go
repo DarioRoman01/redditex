@@ -61,6 +61,11 @@ type ComplexityRoot struct {
 		UpdatePost     func(childComplexity int, id int, options models.PostInput) int
 	}
 
+	PaginatedPosts struct {
+		HasMore func(childComplexity int) int
+		Posts   func(childComplexity int) int
+	}
+
 	Post struct {
 		CreatedAt   func(childComplexity int) int
 		CreatorId   func(childComplexity int) int
@@ -107,7 +112,7 @@ type PostResolver interface {
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*models.User, error)
-	Posts(ctx context.Context, limit int, cursor *string) ([]models.Post, error)
+	Posts(ctx context.Context, limit int, cursor *string) (*models.PaginatedPosts, error)
 	Post(ctx context.Context, id int) (*models.Post, error)
 }
 
@@ -230,6 +235,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdatePost(childComplexity, args["id"].(int), args["options"].(models.PostInput)), true
+
+	case "PaginatedPosts.hasMore":
+		if e.complexity.PaginatedPosts.HasMore == nil {
+			break
+		}
+
+		return e.complexity.PaginatedPosts.HasMore(childComplexity), true
+
+	case "PaginatedPosts.posts":
+		if e.complexity.PaginatedPosts.Posts == nil {
+			break
+		}
+
+		return e.complexity.PaginatedPosts.Posts(childComplexity), true
 
 	case "Post.createdAt":
 		if e.complexity.Post.CreatedAt == nil {
@@ -465,7 +484,7 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
     me: User
 
     # Posts queries
-    posts(limit: Int!, cursor: String): [Post!]
+    posts(limit: Int!, cursor: String): PaginatedPosts!
     post(id: Int!): Post
 }`, BuiltIn: false},
 	{Name: "schema/scalars.graphql", Input: `# gqlgen supports some custom scalars out of the box
@@ -504,6 +523,11 @@ scalar Upload`, BuiltIn: false},
     textSnippet: String!
     points: Int!
     creatorId: Int!
+}
+
+type PaginatedPosts @goModel(model: "lireddit/models.PaginatedPosts") {
+    posts: [Post]
+    hasMore: Boolean!
 }
 
 input PostInput @goModel(model: "lireddit/models.PostInput") {
@@ -1155,6 +1179,73 @@ func (ec *executionContext) _Mutation_deletePost(ctx context.Context, field grap
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _PaginatedPosts_posts(ctx context.Context, field graphql.CollectedField, obj *models.PaginatedPosts) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "PaginatedPosts",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Posts, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]models.Post)
+	fc.Result = res
+	return ec.marshalOPost2ᚕliredditᚋmodelsᚐPost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _PaginatedPosts_hasMore(ctx context.Context, field graphql.CollectedField, obj *models.PaginatedPosts) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "PaginatedPosts",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HasMore, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Post_id(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1499,11 +1590,14 @@ func (ec *executionContext) _Query_posts(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.([]models.Post)
+	res := resTmp.(*models.PaginatedPosts)
 	fc.Result = res
-	return ec.marshalOPost2ᚕliredditᚋmodelsᚐPostᚄ(ctx, field.Selections, res)
+	return ec.marshalNPaginatedPosts2ᚖliredditᚋmodelsᚐPaginatedPosts(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_post(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3109,6 +3203,35 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var paginatedPostsImplementors = []string{"PaginatedPosts"}
+
+func (ec *executionContext) _PaginatedPosts(ctx context.Context, sel ast.SelectionSet, obj *models.PaginatedPosts) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedPostsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedPosts")
+		case "posts":
+			out.Values[i] = ec._PaginatedPosts_posts(ctx, field, obj)
+		case "hasMore":
+			out.Values[i] = ec._PaginatedPosts_hasMore(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var postImplementors = []string{"Post"}
 
 func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj *models.Post) graphql.Marshaler {
@@ -3215,6 +3338,9 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_posts(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			})
 		case "post":
@@ -3591,6 +3717,20 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) marshalNPaginatedPosts2liredditᚋmodelsᚐPaginatedPosts(ctx context.Context, sel ast.SelectionSet, v models.PaginatedPosts) graphql.Marshaler {
+	return ec._PaginatedPosts(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedPosts2ᚖliredditᚋmodelsᚐPaginatedPosts(ctx context.Context, sel ast.SelectionSet, v *models.PaginatedPosts) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedPosts(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPost2liredditᚋmodelsᚐPost(ctx context.Context, sel ast.SelectionSet, v models.Post) graphql.Marshaler {
 	return ec._Post(ctx, sel, &v)
 }
@@ -3919,7 +4059,11 @@ func (ec *executionContext) marshalOFieldError2ᚖliredditᚋmodelsᚐFieldError
 	return ec._FieldError(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOPost2ᚕliredditᚋmodelsᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []models.Post) graphql.Marshaler {
+func (ec *executionContext) marshalOPost2liredditᚋmodelsᚐPost(ctx context.Context, sel ast.SelectionSet, v models.Post) graphql.Marshaler {
+	return ec._Post(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOPost2ᚕliredditᚋmodelsᚐPost(ctx context.Context, sel ast.SelectionSet, v []models.Post) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3946,7 +4090,7 @@ func (ec *executionContext) marshalOPost2ᚕliredditᚋmodelsᚐPostᚄ(ctx cont
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPost2liredditᚋmodelsᚐPost(ctx, sel, v[i])
+			ret[i] = ec.marshalOPost2liredditᚋmodelsᚐPost(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

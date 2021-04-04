@@ -9,7 +9,7 @@ type Post @goModel(model: "lireddit/models.Post") {
     creatorId: Int!
 }
 
-type PaginatedPosts {
+type PaginatedPosts @goModel(model: "lireddit/models.PaginatedPosts") {
     posts: [Post]
     hasMore: Boolean!
 }
