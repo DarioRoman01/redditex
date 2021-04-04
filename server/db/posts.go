@@ -64,6 +64,8 @@ func (p *PostTable) GetPostById(id int) *models.Post {
 	return &post
 }
 
+// get all posts and order the post by createdAt
+// if a cursor is recibed only retrieves the posts created before that post
 func (p *PostTable) GetAllPost(limit int, cursor *string) []models.Post {
 	var posts []models.Post
 
@@ -74,7 +76,7 @@ func (p *PostTable) GetAllPost(limit int, cursor *string) []models.Post {
 	if cursor != nil {
 		p.Table.Where("created_at < ?", *cursor).Order("created_at DESC").Limit(limit).Find(&posts)
 	} else {
-		p.Table.Limit(limit).Order("created_at DESC").Find(&posts)
+		p.Table.Order("created_at DESC").Limit(limit).Find(&posts)
 	}
 
 	return posts
