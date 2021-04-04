@@ -43,7 +43,7 @@ const CreatePost: React.FC<{}> = ({}) => {
               mt={4} 
               type="submit"
               isLoading={isSubmitting} 
-              colorScheme="teal"
+              colorScheme="twitter"
             >
               Create Post
             </Button>

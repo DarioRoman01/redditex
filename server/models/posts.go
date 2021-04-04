@@ -13,6 +13,11 @@ type Post struct {
 	CreatorId int       `json:"creatorId"`
 }
 
+type PaginatedPosts struct {
+	Posts   []Post `json:"posts"`
+	HasMore bool   `json:"hasMore"`
+}
+
 type PostInput struct {
 	Title string `json:"title"`
 	Text  string `json:"text"`

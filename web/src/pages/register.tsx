@@ -54,7 +54,7 @@ const Register: React.FC<registerProps> = ({}) => {
                   mt={4} 
                   type="submit"
                   isLoading={isSubmitting} 
-                  colorScheme="teal"
+                  colorScheme="twitter"
                 >
                   Register
                 </Button>

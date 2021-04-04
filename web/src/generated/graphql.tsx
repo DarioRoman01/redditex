@@ -85,6 +85,7 @@ export type Post = {
   updatedAt: Scalars['Time'];
   title: Scalars['String'];
   text: Scalars['String'];
+  textSnippet: Scalars['String'];
   points: Scalars['Int'];
   creatorId: Scalars['Int'];
 };
@@ -249,7 +250,7 @@ export type PostsQuery = (
   { __typename?: 'Query' }
   & { posts?: Maybe<Array<(
     { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text'>
+    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet'>
   )>> }
 );
 
@@ -362,7 +363,7 @@ export const PostsDocument = gql`
     createdAt
     updatedAt
     title
-    text
+    textSnippet
   }
 }
     `;

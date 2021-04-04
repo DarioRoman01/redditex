@@ -4,8 +4,14 @@ type Post @goModel(model: "lireddit/models.Post") {
     updatedAt: Time!
     title: String!
     text: String!
+    textSnippet: String!
     points: Int!
     creatorId: Int!
+}
+
+type PaginatedPosts {
+    posts: [Post]
+    hasMore: Boolean!
 }
 
 input PostInput @goModel(model: "lireddit/models.PostInput") {

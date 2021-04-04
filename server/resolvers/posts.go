@@ -17,6 +17,15 @@ func init() {
 	}
 }
 
+func (p *PostResolver) TextSnippet(ctx context.Context, obj *models.Post) (string, error) {
+	if len(obj.Text) > 50 {
+		strings := utils.SplitSubN(obj.Text, 50)
+		return strings[0], nil
+	}
+
+	return obj.Text, nil
+}
+
 // Handle post creation
 func (m *mutationResolver) CreatePost(ctx context.Context, options models.PostInput) (*models.Post, error) {
 	userId, err := utils.GetUserSession(ctx)
