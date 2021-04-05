@@ -20,6 +20,7 @@ func (p *PostTable) Postcreation(post models.Post) *models.Post {
 	return &post
 }
 
+// delete post from the db and validate that the requesting user is owner of the post
 func (p *PostTable) PostDelete(id int, userId int) error {
 	var post models.Post
 	p.Table.First(&post, id)
@@ -35,6 +36,7 @@ func (p *PostTable) PostDelete(id int, userId int) error {
 	return nil
 }
 
+// update post data and validate that requesting user is owner of the post
 func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*models.Post, error) {
 	var post models.Post
 

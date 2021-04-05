@@ -67,6 +67,7 @@ func GenUserResponse(user models.User) *models.UserResponse {
 	}
 }
 
+// split string by length
 func SplitSubN(s string, n int) []string {
 	sub := ""
 	subs := []string{}

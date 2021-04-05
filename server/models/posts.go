@@ -16,6 +16,7 @@ type Post struct {
 	Creator   User      `json:"creator"`
 }
 
+// return paginated posts and tell if there is more posts
 type PaginatedPosts struct {
 	Posts   []Post `json:"posts"`
 	HasMore bool   `json:"hasMore"`

@@ -67,6 +67,7 @@ func getMailSlurpClient() (*MailSlurpClient.APIClient, context.Context) {
 	return client, ctx
 }
 
+// generate random string to work as a token
 func RandomString(n int) string {
 	var letters = []rune("abcde-fghijklmnop-qrstuvwxyzABCDEFGHIJ-KLMNOP-QRSTUVWXY-Z0123456789")
 

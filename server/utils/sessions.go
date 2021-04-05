@@ -6,6 +6,7 @@ import (
 	"lireddit/cache"
 )
 
+// Generate session for users
 func GenerateSession(ctx context.Context, id int) error {
 	ec, err := EchoContextFromContext(ctx)
 	if err != nil {
@@ -18,6 +19,7 @@ func GenerateSession(ctx context.Context, id int) error {
 	return nil
 }
 
+// Get users session from the context
 func GetUserSession(ctx context.Context) (int, error) {
 	ec, err := EchoContextFromContext(ctx)
 	if err != nil {

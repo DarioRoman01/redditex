@@ -17,6 +17,7 @@ func init() {
 	}
 }
 
+// resolve textSnippet field in post resolver return only 50 characters
 func (p *PostResolver) TextSnippet(ctx context.Context, obj *models.Post) (string, error) {
 	if len(obj.Text) > 50 {
 		strings := utils.SplitSubN(obj.Text, 50)
@@ -26,7 +27,7 @@ func (p *PostResolver) TextSnippet(ctx context.Context, obj *models.Post) (strin
 	return obj.Text, nil
 }
 
-// Handle post creation
+// Handle post creation and validate user is logged in
 func (m *mutationResolver) CreatePost(ctx context.Context, options models.PostInput) (*models.Post, error) {
 	userId, err := utils.GetUserSession(ctx)
 	if err != nil {
@@ -46,7 +47,7 @@ func (m *mutationResolver) CreatePost(ctx context.Context, options models.PostIn
 	return post, nil
 }
 
-// Handle post delete request
+// Handle post delete request and validate user is logged in
 func (m *mutationResolver) DeletePost(ctx context.Context, id int) (bool, error) {
 	userId, err := utils.GetUserSession(ctx)
 	if err != nil {
@@ -60,7 +61,7 @@ func (m *mutationResolver) DeletePost(ctx context.Context, id int) (bool, error)
 	return true, nil
 }
 
-// handle post update by id
+// handle post update by id and validate user is logged in
 func (m *mutationResolver) UpdatePost(ctx context.Context, id int, options models.PostInput) (*models.Post, error) {
 	userId, err := utils.GetUserSession(ctx)
 	if err != nil {
