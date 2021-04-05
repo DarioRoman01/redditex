@@ -93,3 +93,17 @@ func (q *queryResolver) Posts(ctx context.Context, limit int, cursor *string) (*
 	posts, isMore := postTable.GetAllPost(limit, cursor)
 	return &models.PaginatedPosts{Posts: posts, HasMore: isMore}, nil
 }
+
+func (p *mutationResolver) Vote(ctx context.Context, postID int, value int) (bool, error) {
+	userId, err := utils.GetUserSession(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	voted := postTable.SetVote(postID, userId, value)
+	if !voted {
+		return false, nil
+	}
+
+	return true, nil
+}

@@ -59,7 +59,12 @@ func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*m
 
 func (p *PostTable) GetPostById(id int) *models.Post {
 	var post models.Post
-	p.Table.First(&post, id)
+	p.Table.
+		Table("posts").
+		Where("id = ?", id).
+		Preload("Creator").
+		Find(&post)
+
 	if post.ID == 0 {
 		return nil
 	}
@@ -101,4 +106,35 @@ func (p *PostTable) GetAllPost(limit int, cursor *string) ([]models.Post, bool) 
 	}
 
 	return posts[0 : len(posts)-1], false
+}
+
+// set vote in updoots join table and update post points
+func (p *PostTable) SetVote(postId, userId, value int) bool {
+	isUpdoot := value != -1
+	var realValue int
+
+	if isUpdoot {
+		realValue = 1
+	} else {
+		realValue = -1
+	}
+
+	query := fmt.Sprintf(`
+		START TRANSACTION;
+
+		INSERT INTO "updoots" ("user_id", "post_id", "value")
+		values(%d, %d, %d);
+
+		UPDATE "posts"
+		SET points = points + %d
+		WHERE posts.id = %d;
+
+		COMMIT;
+	`, userId, postId, realValue, realValue, postId)
+
+	if err := p.Table.Exec(query).Error; err != nil {
+		return false
+	}
+
+	return true
 }

@@ -14,6 +14,7 @@ type Post struct {
 	Points    int       `json:"points" gorm:"default:0"`
 	CreatorId int       `json:"creatorId"`
 	Creator   User      `json:"creator"`
+	Updoots   []Updoot  `gorm:"foreignKey:PostID;references:ID"`
 }
 
 // return paginated posts and tell if there is more posts

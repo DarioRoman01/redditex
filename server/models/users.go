@@ -11,7 +11,8 @@ type User struct {
 	Username  string    `json:"username" gorm:"unique"`
 	Email     string    `json:"email" gorm:"unique"`
 	Password  string
-	Posts     []Post `gorm:"foreignKey:CreatorId;references:Id"`
+	Posts     []Post   `gorm:"foreignKey:CreatorId;references:Id"`
+	Updoots   []Updoot `gorm:"foreignKey:UserID;references:Id"`
 }
 
 // input type for users signup

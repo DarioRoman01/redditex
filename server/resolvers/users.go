@@ -20,6 +20,24 @@ func init() {
 	}
 }
 
+// validate email field in users resolvers
+func (u *UserResolver) Email(ctx context.Context, obj *models.User) (string, error) {
+	val, err := utils.GetUserSession(ctx)
+
+	// current user is not logged in
+	if err != nil {
+		return "", nil
+	}
+
+	// current user is logged in and wants to se someone elses email
+	if val != obj.Id {
+		return "", nil
+	}
+
+	// this is the current user and its ok to show them their email
+	return obj.Email, nil
+}
+
 // handle users signup and validate all the fields required for signup
 func (r *mutationResolver) Register(ctx context.Context, options models.UserInput) (*models.UserResponse, error) {
 	isInvalid := utils.ValidateRegister(options)

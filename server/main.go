@@ -18,7 +18,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	psql.AutoMigrate(&models.User{}, &models.Post{})
+	psql.AutoMigrate(&models.User{}, &models.Post{}, &models.Updoot{})
 }
 
 func main() {
