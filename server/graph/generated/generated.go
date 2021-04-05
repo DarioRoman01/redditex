@@ -68,6 +68,7 @@ type ComplexityRoot struct {
 
 	Post struct {
 		CreatedAt   func(childComplexity int) int
+		Creator     func(childComplexity int) int
 		CreatorId   func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Points      func(childComplexity int) int
@@ -256,6 +257,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Post.CreatedAt(childComplexity), true
+
+	case "Post.creator":
+		if e.complexity.Post.Creator == nil {
+			break
+		}
+
+		return e.complexity.Post.Creator(childComplexity), true
 
 	case "Post.creatorId":
 		if e.complexity.Post.CreatorId == nil {
@@ -523,6 +531,7 @@ scalar Upload`, BuiltIn: false},
     textSnippet: String!
     points: Int!
     creatorId: Int!
+    creator: User!
 }
 
 type PaginatedPosts @goModel(model: "lireddit/models.PaginatedPosts") {
@@ -1524,6 +1533,41 @@ func (ec *executionContext) _Post_creatorId(ctx context.Context, field graphql.C
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_creator(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Creator, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.User)
+	fc.Result = res
+	return ec.marshalNUser2liredditᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3292,6 +3336,11 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "creator":
+			out.Values[i] = ec._Post_creator(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3778,6 +3827,10 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNUser2liredditᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNUserInput2liredditᚋmodelsᚐUserInput(ctx context.Context, v interface{}) (models.UserInput, error) {

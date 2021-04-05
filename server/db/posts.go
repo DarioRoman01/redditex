@@ -71,12 +71,23 @@ func (p *PostTable) GetAllPost(limit int, cursor *string) ([]models.Post, bool) 
 	if limit > 50 {
 		limit = 50
 	}
-
 	limit++
+
 	if cursor != nil {
-		p.Table.Where("created_at < ?", *cursor).Order("created_at DESC").Limit(limit).Find(&posts)
+		p.Table.
+			Table("posts").
+			Where("created_at < ?", *cursor).
+			Order("created_at DESC").
+			Limit(limit).
+			Preload("Creator").
+			Find(&posts)
 	} else {
-		p.Table.Order("created_at DESC").Limit(limit).Find(&posts)
+		p.Table.
+			Table("posts").
+			Order("posts.created_at DESC").
+			Limit(limit).
+			Preload("Creator").
+			Find(&posts)
 	}
 
 	if len(posts) == 0 {

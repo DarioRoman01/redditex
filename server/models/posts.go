@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // post model
 type Post struct {
@@ -11,6 +13,7 @@ type Post struct {
 	Text      string    `json:"text" gorm:"not null"`
 	Points    int       `json:"points" gorm:"default:0"`
 	CreatorId int       `json:"creatorId"`
+	Creator   User      `json:"creator"`
 }
 
 type PaginatedPosts struct {

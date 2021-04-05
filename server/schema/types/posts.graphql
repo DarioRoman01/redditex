@@ -7,6 +7,7 @@ type Post @goModel(model: "lireddit/models.Post") {
     textSnippet: String!
     points: Int!
     creatorId: Int!
+    creator: User!
 }
 
 type PaginatedPosts @goModel(model: "lireddit/models.PaginatedPosts") {
