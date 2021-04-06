@@ -74,6 +74,7 @@ type ComplexityRoot struct {
 		CreatorId   func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Points      func(childComplexity int) int
+		StateValue  func(childComplexity int) int
 		Text        func(childComplexity int) int
 		TextSnippet func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -303,6 +304,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Post.Points(childComplexity), true
+
+	case "Post.stateValue":
+		if e.complexity.Post.StateValue == nil {
+			break
+		}
+
+		return e.complexity.Post.StateValue(childComplexity), true
 
 	case "Post.text":
 		if e.complexity.Post.Text == nil {
@@ -548,6 +556,7 @@ scalar Upload`, BuiltIn: false},
     text: String!
     textSnippet: String!
     points: Int!
+    stateValue: Int
     creatorId: Int!
     creator: User!
 }
@@ -1582,6 +1591,38 @@ func (ec *executionContext) _Post_points(ctx context.Context, field graphql.Coll
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Post_stateValue(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StateValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalOInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Post_creatorId(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
@@ -3420,6 +3461,8 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "stateValue":
+			out.Values[i] = ec._Post_stateValue(ctx, field, obj)
 		case "creatorId":
 			out.Values[i] = ec._Post_creatorId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4208,6 +4251,15 @@ func (ec *executionContext) marshalOFieldError2ᚖliredditᚋmodelsᚐFieldError
 		return graphql.Null
 	}
 	return ec._FieldError(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	return graphql.MarshalInt(v)
 }
 
 func (ec *executionContext) marshalOPost2liredditᚋmodelsᚐPost(ctx context.Context, sel ast.SelectionSet, v models.Post) graphql.Marshaler {

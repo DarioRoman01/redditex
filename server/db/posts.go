@@ -73,7 +73,7 @@ func (p *PostTable) GetPostById(id int) *models.Post {
 
 // get all posts and order the post by createdAt
 // if a cursor is recibed only retrieves the posts created before that post
-func (p *PostTable) GetAllPost(limit int, cursor *string) ([]models.Post, bool) {
+func (p *PostTable) GetAllPost(limit int, userId int, cursor *string) ([]models.Post, bool) {
 	var posts []models.Post
 	if limit > 50 {
 		limit = 50
@@ -81,20 +81,27 @@ func (p *PostTable) GetAllPost(limit int, cursor *string) ([]models.Post, bool) 
 	limit++
 
 	if cursor != nil {
-		p.Table.
-			Table("posts").
-			Where("created_at < ?", *cursor).
-			Order("created_at DESC").
-			Limit(limit).
-			Preload("Creator").
-			Find(&posts)
+		p.Table.Debug().Raw(`
+			SELECT p.*,
+			( SELECT "value" from "updoots" 
+			WHERE "user_id" = ? and "post_id" = p.id) as "StateValue"
+			FROM posts p
+			WHERE p.created_at < ?
+			ORDER BY p.created_at DESC
+			LIMIT ?
+		`, userId, *cursor, limit).
+			Preload("Creator").Find(&posts)
+
 	} else {
-		p.Table.
-			Table("posts").
-			Order("posts.created_at DESC").
-			Limit(limit).
-			Preload("Creator").
-			Find(&posts)
+		p.Table.Raw(`
+			SELECT p.*,
+			( SELECT "value" from "updoots" 
+			WHERE "user_id" = ? and "post_id" = p.id) as "StateValue"
+			FROM posts p
+			ORDER BY p.created_at DESC
+			LIMIT ?
+		`, userId, limit).
+			Preload("Creator").Find(&posts)
 	}
 
 	if len(posts) == 0 {

@@ -6,6 +6,7 @@ type Post @goModel(model: "lireddit/models.Post") {
     text: String!
     textSnippet: String!
     points: Int!
+    stateValue: Int
     creatorId: Int!
     creator: User!
 }

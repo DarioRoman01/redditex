@@ -6,15 +6,16 @@ import (
 
 // post model
 type Post struct {
-	ID        int       `json:"id" gorm:"primaryKey"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Title     string    `json:"title" gorm:"not null"`
-	Text      string    `json:"text" gorm:"not null"`
-	Points    int       `json:"points" gorm:"default:0"`
-	CreatorId int       `json:"creatorId"`
-	Creator   User      `json:"creator"`
-	Updoots   []Updoot  `gorm:"foreignKey:PostID;references:ID"`
+	ID         int       `json:"id" gorm:"primaryKey"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+	Title      string    `json:"title" gorm:"not null"`
+	Text       string    `json:"text" gorm:"not null"`
+	Points     int       `json:"points" gorm:"default:0"`
+	StateValue int       `json:"stateValue" gorm:"-:migration"`
+	CreatorId  int       `json:"creatorId"`
+	Creator    User      `json:"creator" gorm:"-:migration"`
+	Updoots    []Updoot  `gorm:"foreignKey:PostID;references:ID"`
 }
 
 // return paginated posts and tell if there is more posts

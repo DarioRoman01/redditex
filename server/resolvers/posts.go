@@ -90,7 +90,8 @@ func (q *queryResolver) Post(ctx context.Context, id int) (*models.Post, error) 
 
 // get all posts
 func (q *queryResolver) Posts(ctx context.Context, limit int, cursor *string) (*models.PaginatedPosts, error) {
-	posts, isMore := postTable.GetAllPost(limit, cursor)
+	userId, _ := utils.GetUserSession(ctx)
+	posts, isMore := postTable.GetAllPost(limit, userId, cursor)
 	return &models.PaginatedPosts{Posts: posts, HasMore: isMore}, nil
 }
 
