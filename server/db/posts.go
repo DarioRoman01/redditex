@@ -110,6 +110,7 @@ func (p *PostTable) GetAllPost(limit int, cursor *string) ([]models.Post, bool) 
 
 // set vote in updoots join table and update post points
 func (p *PostTable) SetVote(postId, userId, value int) bool {
+	var updoot models.Updoot
 	isUpdoot := value != -1
 	var realValue int
 
@@ -119,21 +120,47 @@ func (p *PostTable) SetVote(postId, userId, value int) bool {
 		realValue = -1
 	}
 
-	query := fmt.Sprintf(`
-		START TRANSACTION;
+	p.Table.Table("updoots").Where("user_id = ? and post_id = ?", userId, postId).Find(&updoot)
 
-		INSERT INTO "updoots" ("user_id", "post_id", "value")
-		values(%d, %d, %d);
+	// user is vote the post before and
+	// they are changing their vote
+	if updoot.PostID != 0 && updoot.Value != realValue {
+		query := fmt.Sprintf(`
+			START TRANSACTION;
 
-		UPDATE "posts"
-		SET points = points + %d
-		WHERE posts.id = %d;
+			UPDATE "updoots"
+			SET value = %d
+			WHERE post_id = %d AND user_id = %d; 
 
-		COMMIT;
-	`, userId, postId, realValue, realValue, postId)
+			UPDATE "posts"
+			SET points = points + %d
+			WHERE posts.id = %d;
 
-	if err := p.Table.Exec(query).Error; err != nil {
-		return false
+			COMMIT;
+		`, realValue, postId, userId, 2*realValue, postId)
+
+		if err := p.Table.Exec(query).Error; err != nil {
+			return false
+		}
+
+	} else if updoot.PostID == 0 {
+		// user has never voted before
+		query := fmt.Sprintf(`
+			START TRANSACTION;
+
+			INSERT INTO "updoots" ("user_id", "post_id", "value")
+			values(%d, %d, %d);
+
+			UPDATE "posts"
+			SET points = points + %d
+			WHERE posts.id = %d;
+
+			COMMIT;
+		`, userId, postId, realValue, realValue, postId)
+
+		if err := p.Table.Exec(query).Error; err != nil {
+			return false
+		}
 	}
 
 	return true
