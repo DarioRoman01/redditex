@@ -15,7 +15,7 @@ type Post struct {
 	StateValue int       `json:"stateValue" gorm:"-:migration"`
 	CreatorId  int       `json:"creatorId"`
 	Creator    User      `json:"creator" gorm:"-:migration"`
-	Updoots    []Updoot  `gorm:"foreignKey:PostID;references:ID"`
+	Updoots    []Updoot  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:PostID;references:ID;"`
 }
 
 // return paginated posts and tell if there is more posts

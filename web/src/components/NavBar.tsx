@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Link } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from 'next/link';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
@@ -20,36 +20,64 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
       body = (
         <>
         <NextLink href="/login">
-          <Link mr={2}>Login</Link>
+          <Link 
+            color="blackAlpha.900"
+            fontSize="larger"
+            mr={2} 
+          >
+            Login
+          </Link>
         </NextLink>
         <NextLink href="/register">
-          <Link>Register</Link>
+          <Link 
+            color="blackAlpha.900" 
+            fontSize="larger"
+          >
+            Register
+          </Link>
         </NextLink>
         </>
       );
       // user is logged in
     } else {
         body = (
-          <Flex>
-            <Box mr={3}>{data.me.username}</Box>
-            <Button 
+          <Flex alignItems="center">
+            <NextLink href="/create-post">
+              <Button
+                as={Link}
+                ml="auto" 
+                mr={3}
+                fontSize="large"
+                color="blackAlpha.900"
+                colorScheme="blackAlpha" 
+                variant="outline"
+              >
+                  Create Post
+              </Button>
+            </NextLink>
+            <Box mr={3} fontSize="larger">{data.me.username}</Box>
+            <Link
+              color="blackAlpha.900"
+              fontSize="larger"
               onClick={() => {
                 logout();
               }}
               isLoading={LogoutFetching}
-              variant="link" 
             >
               Logout
-            </Button>
+            </Link>
           </Flex>
         );
     }
 
     return (
-      <Flex zIndex={1} position="sticky" top={0} bg="twitter.500" p={4} >
-          <Box ml={"auto"}>
-              {body}
-          </Box>
+      <Flex zIndex={1} position="sticky" top={0} bg="twitter.400" p={4} alignItems="center">
+        <NextLink href="/">
+          <Link>
+            <Heading>Redditex</Heading>
+          </Link>
+        </NextLink>
+          <Box ml={"auto"}>{body}</Box>
       </Flex>
     );
 }

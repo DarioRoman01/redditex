@@ -4,6 +4,7 @@ fragment PostSnippet on Post {
   updatedAt
   title
   points
+  stateValue
   textSnippet
   creator {
     id

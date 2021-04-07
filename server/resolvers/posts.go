@@ -82,7 +82,7 @@ func (q *queryResolver) Post(ctx context.Context, id int) (*models.Post, error) 
 	post := postTable.GetPostById(id)
 
 	if post == nil {
-		return nil, fmt.Errorf("post not found")
+		return nil, nil
 	}
 
 	return post, nil

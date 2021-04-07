@@ -22,15 +22,9 @@ func (p *PostTable) Postcreation(post models.Post) *models.Post {
 
 // delete post from the db and validate that the requesting user is owner of the post
 func (p *PostTable) PostDelete(id int, userId int) error {
-	var post models.Post
-	p.Table.First(&post, id)
-
-	if post.CreatorId != userId {
-		return fmt.Errorf("you dont have permissions to perform this action")
-	}
-
-	if err := p.Table.Delete(&post); err != nil {
-		return fmt.Errorf("unable to delete the post")
+	result := p.Table.Where("id = ? and creator_id = ?", id, userId).Delete(&models.Post{})
+	if result.RowsAffected == 0 || result.Error != nil {
+		return fmt.Errorf("post does not exist or you are not the owner of the post")
 	}
 
 	return nil
@@ -81,7 +75,7 @@ func (p *PostTable) GetAllPost(limit int, userId int, cursor *string) ([]models.
 	limit++
 
 	if cursor != nil {
-		p.Table.Debug().Raw(`
+		p.Table.Raw(`
 			SELECT p.*,
 			( SELECT "value" from "updoots" 
 			WHERE "user_id" = ? and "post_id" = p.id) as "StateValue"
