@@ -3,6 +3,7 @@ package main
 import (
 	"lireddit/cache"
 	"lireddit/controllers"
+	"lireddit/dataloaders"
 	"lireddit/db"
 	"lireddit/models"
 	"log"
@@ -37,7 +38,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Route => handler
-	e.POST("/graphql", controllers.GraphqlHandler)
+	e.POST("/graphql", controllers.GraphqlHandler, dataloaders.DataLoaderMiddleware)
 	e.GET("/graphql", controllers.PlaygroundHandler)
 
 	// Start server

@@ -3,9 +3,11 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"lireddit/dataloaders"
 	"lireddit/db"
 	"lireddit/models"
 	"lireddit/utils"
+	"strconv"
 )
 
 var postTable db.PostTable
@@ -15,6 +17,12 @@ func init() {
 	postTable = db.PostTable{
 		Table: *psql,
 	}
+}
+
+func (p *PostResolver) Creator(ctx context.Context, obj *models.Post) (*models.User, error) {
+	c, _ := utils.EchoContextFromContext(ctx)
+	strId := strconv.Itoa(obj.CreatorId)
+	return dataloaders.GetUserLoader(c.Request().Context()).Load(strId)
 }
 
 // resolve textSnippet field in post resolver return only 50 characters

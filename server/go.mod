@@ -18,6 +18,7 @@ require (
 	github.com/mailslurp/mailslurp-client-go v0.0.0-20210331230101-3879a2e9add6 // indirect
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/socketlabs/socketlabs-go v1.1.1 // indirect
+	github.com/vektah/dataloaden v0.3.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 // indirect
 	golang.org/x/text v0.3.6 // indirect

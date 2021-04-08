@@ -18,6 +18,10 @@ models:
     fields:
       email:
         resolver: true
+  Post:
+    fields:
+      creator:
+        resolver: true
       
 
 # Optional, set to true if you prefer []Thing over []*Thing

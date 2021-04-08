@@ -12,7 +12,7 @@ import (
 
 type CustomContext struct {
 	echo.Context
-	ctx context.Context
+	Ctx context.Context
 }
 
 // insert echo request context in the context

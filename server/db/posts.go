@@ -93,7 +93,7 @@ func (p *PostTable) GetAllPost(limit int, userId int, cursor *string) ([]models.
 			FROM posts p
 			ORDER BY p.created_at DESC
 			LIMIT ?
-		`, userId, limit).Preload("Creator").Find(&posts)
+		`, userId, limit).Find(&posts)
 	}
 
 	if len(posts) == 0 {
