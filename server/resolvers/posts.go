@@ -17,12 +17,6 @@ func init() {
 	}
 }
 
-func (p *PostResolver) Creator(ctx context.Context, obj *models.Post) (*models.User, error) {
-	var user models.User
-	postTable.Table.First(&user, obj.CreatorId)
-	return &user, nil
-}
-
 // resolve textSnippet field in post resolver return only 50 characters
 func (p *PostResolver) TextSnippet(ctx context.Context, obj *models.Post) (string, error) {
 	if len(obj.Text) > 50 {

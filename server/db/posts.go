@@ -34,7 +34,7 @@ func (p *PostTable) PostDelete(id int, userId int) error {
 func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*models.Post, error) {
 	var post models.Post
 
-	p.Table.First(&post, id)
+	p.Table.Table("posts").Where("id = ?", id).Preload("Creator").Find(&post)
 	if post.ID == 0 {
 		return nil, fmt.Errorf("post not found")
 	}
@@ -53,7 +53,11 @@ func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*m
 
 func (p *PostTable) GetPostById(id int) *models.Post {
 	var post models.Post
-	p.Table.Table("posts").Where("id = ?", id).Find(&post)
+	p.Table.
+		Table("posts").
+		Where("id = ?", id).
+		Preload("Creator").
+		Find(&post)
 
 	if post.ID == 0 {
 		return nil
@@ -79,7 +83,7 @@ func (p *PostTable) GetAllPost(limit int, userId int, cursor *string) ([]models.
 			WHERE p.created_at < ?
 			ORDER BY p.created_at DESC
 			LIMIT ?
-		`, userId, *cursor, limit).Find(&posts)
+		`, userId, *cursor, limit).Preload("Creator").Find(&posts)
 
 	} else {
 		p.Table.Raw(`
@@ -89,7 +93,7 @@ func (p *PostTable) GetAllPost(limit int, userId int, cursor *string) ([]models.
 			FROM posts p
 			ORDER BY p.created_at DESC
 			LIMIT ?
-		`, userId, limit).Find(&posts)
+		`, userId, limit).Preload("Creator").Find(&posts)
 	}
 
 	if len(posts) == 0 {
