@@ -1,0 +1,8 @@
+mutation UpdatePost($id: Int!, $options: PostInput!) {
+  updatePost(id: $id, options:$options) {
+    id
+    title
+    text
+    textSnippet
+  }
+}

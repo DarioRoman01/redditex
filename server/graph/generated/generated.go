@@ -114,6 +114,8 @@ type MutationResolver interface {
 }
 type PostResolver interface {
 	TextSnippet(ctx context.Context, obj *models.Post) (string, error)
+
+	Creator(ctx context.Context, obj *models.Post) (*models.User, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*models.User, error)
@@ -1671,14 +1673,14 @@ func (ec *executionContext) _Post_creator(ctx context.Context, field graphql.Col
 		Object:     "Post",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Creator, nil
+		return ec.resolvers.Post().Creator(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1690,9 +1692,9 @@ func (ec *executionContext) _Post_creator(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.User)
+	res := resTmp.(*models.User)
 	fc.Result = res
-	return ec.marshalNUser2liredditᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖliredditᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3469,10 +3471,19 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "creator":
-			out.Values[i] = ec._Post_creator(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Post_creator(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3972,6 +3983,16 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 
 func (ec *executionContext) marshalNUser2liredditᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUser2ᚖliredditᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUserInput2liredditᚋmodelsᚐUserInput(ctx context.Context, v interface{}) (models.UserInput, error) {

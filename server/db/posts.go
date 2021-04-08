@@ -53,11 +53,7 @@ func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*m
 
 func (p *PostTable) GetPostById(id int) *models.Post {
 	var post models.Post
-	p.Table.
-		Table("posts").
-		Where("id = ?", id).
-		Preload("Creator").
-		Find(&post)
+	p.Table.Table("posts").Where("id = ?", id).Find(&post)
 
 	if post.ID == 0 {
 		return nil
@@ -83,8 +79,7 @@ func (p *PostTable) GetAllPost(limit int, userId int, cursor *string) ([]models.
 			WHERE p.created_at < ?
 			ORDER BY p.created_at DESC
 			LIMIT ?
-		`, userId, *cursor, limit).
-			Preload("Creator").Find(&posts)
+		`, userId, *cursor, limit).Find(&posts)
 
 	} else {
 		p.Table.Raw(`
@@ -94,8 +89,7 @@ func (p *PostTable) GetAllPost(limit int, userId int, cursor *string) ([]models.
 			FROM posts p
 			ORDER BY p.created_at DESC
 			LIMIT ?
-		`, userId, limit).
-			Preload("Creator").Find(&posts)
+		`, userId, limit).Find(&posts)
 	}
 
 	if len(posts) == 0 {
@@ -144,8 +138,8 @@ func (p *PostTable) SetVote(postId, userId, value int) bool {
 			return false
 		}
 
-	} else if updoot.PostID == 0 {
 		// user has never voted before
+	} else if updoot.PostID == 0 {
 		query := fmt.Sprintf(`
 			START TRANSACTION;
 
