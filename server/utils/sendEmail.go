@@ -4,20 +4,20 @@ import (
 	"context"
 	"fmt"
 	"lireddit/cache"
-	"lireddit/env"
 	"lireddit/models"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/antihax/optional"
-	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 	MailSlurpClient "github.com/mailslurp/mailslurp-client-go"
 )
 
 func init() {
-	if err := cleanenv.ReadEnv(&env.Cfg); err != nil {
-		log.Fatal("cannot read rend")
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("cannot read env")
 	}
 }
 
@@ -32,7 +32,7 @@ func SendEmail(user *models.User) bool {
 	redis := cache.ConnectRedis()
 	redis.Set(context.Background(), fmt.Sprintf("forgot-password:%s", token), user.Id, time.Hour*24*3) // 3 days
 
-	var body string = fmt.Sprintf(`<a href="http://localhost:3000/change-password/%s">reset password</a>`, token)
+	var body string = fmt.Sprintf(`<a href="%s/change-password/%s">reset password</a>`, os.Getenv("CORS_ORIGIN"), token)
 
 	sendEmailOptions := MailSlurpClient.SendEmailOptions{
 		To:      []string{inbox.EmailAddress},
@@ -58,7 +58,7 @@ func getMailSlurpClient() (*MailSlurpClient.APIClient, context.Context) {
 	ctx := context.WithValue(
 		context.Background(),
 		MailSlurpClient.ContextAPIKey,
-		MailSlurpClient.APIKey{Key: env.Cfg.EmailApiKey},
+		MailSlurpClient.APIKey{Key: os.Getenv("EMAIL_KEY")},
 	)
 
 	config := MailSlurpClient.NewConfiguration()

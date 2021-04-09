@@ -2,13 +2,21 @@ package cache
 
 import (
 	"log"
+	"os"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/joho/godotenv"
 )
 
-// this client only work with sessions
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Unable to read env")
+	}
+}
+
+// client for sessions
 func Client() *RedisStore {
-	store, err := NewRedisStore(32, "tcp", "localhost:6379", "", []byte("secret"))
+	store, err := NewRedisStore(32, "tcp", os.Getenv("REDIS_ADDRS"), os.Getenv("REDIS_PWD"), []byte(os.Getenv("SESSION_SECRET")))
 	if err != nil {
 		log.Fatal("unable to connect to redis")
 	}
@@ -16,12 +24,12 @@ func Client() *RedisStore {
 	return &store
 }
 
-// this client is to do more complex interactions with redis
+// Client to interact with redis
 func ConnectRedis() *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     os.Getenv("REDIS_URL"),
+		Password: os.Getenv("REDIS_PWD"),
+		DB:       0,
 	})
 
 	return rdb

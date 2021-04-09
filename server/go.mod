@@ -12,6 +12,7 @@ require (
 	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.2.5 // indirect
 	github.com/jackc/pgx/v4 v4.11.0 // indirect
+	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/labstack/echo-contrib v0.9.0 // indirect
 	github.com/labstack/echo/v4 v4.2.1 // direct
 	github.com/lib/pq v1.6.0 // indirect

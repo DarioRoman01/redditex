@@ -7,7 +7,9 @@ import (
 	"lireddit/db"
 	"lireddit/models"
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -19,22 +21,23 @@ func init() {
 	}
 
 	psql.AutoMigrate(&models.User{}, &models.Post{}, &models.Updoot{})
+	if err = godotenv.Load(); err != nil {
+		log.Fatal("unable to read env")
+	}
 }
 
 func main() {
 	e := echo.New()
-	store, err := cache.NewRedisStore(32, "tcp", "localhost:6379", "", []byte("secret"))
-	if err != nil {
-		log.Fatal("unable to connect to redis")
-	}
+	store := cache.Client()
 
 	// Middlewares
+	e.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{}))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{os.Getenv("CORS_ORIGIN")},
 		AllowCredentials: true,
 	}))
 	e.Use(controllers.Process)
-	e.Use(cache.Sessions("qid", store))
+	e.Use(cache.Sessions("qid", *store))
 	e.Use(middleware.Recover())
 
 	// Route => handler
@@ -42,5 +45,5 @@ func main() {
 	e.GET("/graphql", controllers.PlaygroundHandler)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":4000"))
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
