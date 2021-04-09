@@ -34,7 +34,7 @@ func (p *PostTable) PostDelete(id int, userId int) error {
 func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*models.Post, error) {
 	var post models.Post
 
-	p.Table.Table("posts").Where("id = ?", id).Preload("Creator").Find(&post)
+	p.Table.Table("posts").Where("id = ?", id).Find(&post)
 	if post.ID == 0 {
 		return nil, fmt.Errorf("post not found")
 	}
@@ -53,11 +53,7 @@ func (p *PostTable) PostUpdate(id int, userId int, options models.PostInput) (*m
 
 func (p *PostTable) GetPostById(id int) *models.Post {
 	var post models.Post
-	p.Table.
-		Table("posts").
-		Where("id = ?", id).
-		Preload("Creator").
-		Find(&post)
+	p.Table.Table("posts").Where("id = ?", id).Find(&post)
 
 	if post.ID == 0 {
 		return nil
@@ -83,7 +79,7 @@ func (p *PostTable) GetAllPost(limit int, userId int, cursor *string) ([]models.
 			WHERE p.created_at < ?
 			ORDER BY p.created_at DESC
 			LIMIT ?
-		`, userId, *cursor, limit).Preload("Creator").Find(&posts)
+		`, userId, *cursor, limit).Find(&posts)
 
 	} else {
 		p.Table.Raw(`

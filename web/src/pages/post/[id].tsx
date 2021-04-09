@@ -6,6 +6,7 @@ import { Flex, Heading } from "@chakra-ui/layout";
 import { Box } from "@chakra-ui/react";
 import { useGetPostFromUrl } from "../../utils/useGetPostFromUrl";
 import { useRouter } from "next/router";
+import { Text } from "@chakra-ui/react"
 import { EditDeletePostsButtons } from "../../components/EditDeletePostButtons";
 
 const Post = ({}) => {
@@ -42,7 +43,10 @@ const Post = ({}) => {
 						creatorId={data.post.creator.id} 
 					/>
 				</Flex>
-				{data.post.text}
+				<Box>
+					{data.post.text}
+					<Text mt={4}>Posted By {data.post.creator.username}</Text>
+				</Box>
 			</Layout>
     )
 }
