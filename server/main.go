@@ -31,7 +31,6 @@ func main() {
 	store := cache.Client()
 
 	// Middlewares
-	e.Use(middleware.ProxyWithConfig(middleware.ProxyConfig{}))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{os.Getenv("CORS_ORIGIN")},
 		AllowCredentials: true,

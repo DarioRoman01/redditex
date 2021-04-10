@@ -18,7 +18,7 @@ func init() {
 func Client() *RedisStore {
 	store, err := NewRedisStore(32, "tcp", os.Getenv("REDIS_ADDRS"), os.Getenv("REDIS_PWD"), []byte(os.Getenv("SESSION_SECRET")))
 	if err != nil {
-		log.Fatal("unable to connect to redis")
+		log.Fatal("unable to connect to redis: ", err)
 	}
 
 	return &store
@@ -27,7 +27,7 @@ func Client() *RedisStore {
 // Client to interact with redis
 func ConnectRedis() *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     os.Getenv("REDIS_URL"),
+		Addr:     os.Getenv("REDIS_ADDRS"),
 		Password: os.Getenv("REDIS_PWD"),
 		DB:       0,
 	})
