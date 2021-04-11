@@ -1,7 +1,7 @@
 # Redditex
 
 a simple fullstack app inspired on redit
-![](./docs/redditex/png)
+![](./docs/redditex.png)
 
 ## What is this?
 
